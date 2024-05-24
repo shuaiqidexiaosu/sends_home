@@ -1,0 +1,8 @@
+#  swagger ui??
+#  http://localhost:8082/swagger-ui/index.html#/
+#     http://localhost:8082/doc.html#/home
+
+spring:
+  profiles:
+    active: dev
+

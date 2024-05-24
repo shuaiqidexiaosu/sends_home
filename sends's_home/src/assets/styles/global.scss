@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input,
+img {
+  margin: 0;
+  padding: 0;
+  border: 0 none;
+  outline-style: none;
+  vertical-align: bottom;
+}
+
+button {
+  border: none;
+}
+
+.router-link-active {
+  text-decoration: none; //去除默认样式
+}
+
+input {
+  box-sizing: border-box;
+  background-color: inherit;
+}
+
+p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: wrap;
+  // line-height: 1.2;
+}
+
+/* 滚动条宽度 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+  background: white;
+  
+}
+
+/* 滚动条句柄 */
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 8px;
+}
+
+/* 滚动条句柄悬停 */
+::-webkit-scrollbar-thumb:hover {
+  background-image: linear-gradient(to right, #67e8f9, #3b82f6);
+  width: 10px;
+}
