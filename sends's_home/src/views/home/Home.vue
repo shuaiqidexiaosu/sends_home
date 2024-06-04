@@ -29,10 +29,10 @@
       <div class="card-body">
         <div class="mockup-window border bg-base-300 text-md font-bold">
           <div class="px-4 py-2 bg-base-200 flex flex-wrap">
-            <p class="m-3">gitlab地址: <a class="link link-info" target="_blank" href="https://git.sends.cc/">https://git.sends.cc/</a></p>
-            <p class="m-3">桑梓门禁地址: <a class="link link-info" target="_blank" href="https://access.sends.cc">https://access.sends.cc</a></p>
-            <p class="m-3">github地址: <a class="link link-info" target="_blank" href="https://github.com/SendsTeam">https://github.com/SendsTeam</a></p>
-             <p class="m-3">桑梓维基库: <a class="link link-info" target="_blank" href="https://wiki.sends.cc/">https://wiki.sends.cc/</a></p>
+            <p class="m-3">gitlab地址: <a class="link link-info" target="_blank" href="#"></a></p>
+            <p class="m-3">桑梓门禁地址: <a class="link link-info" target="_blank" href="#"></a></p>
+            <p class="m-3">github地址: <a class="link link-info" target="_blank" href="#">/a></p>
+             <p class="m-3">桑梓维基库: <a class="link link-info" target="_blank" href="#"></a></p>
             <p class="m-3">更多网站,期待你的反馈...</p>
           </div>
         </div>
@@ -50,13 +50,13 @@
             </ul>
           </div>
         </a>
-        <a class="link link-hover" href="https://qm.qq.com/q/tbvSfJhoGe" target="_blank">
+        <a class="link link-hover" href="#" target="_blank">
           QQ总群(2024)
         </a>
       </nav>
       <nav>
         <h6 class="footer-title">部门群</h6>
-        <a class="link link-hover" href="https://qm.qq.com/q/PQ9esYZX6a" target="_blank">研发群(23-24)</a>
+        <a class="link link-hover" href="#" target="_blank">研发群(23-24)</a>
       </nav>
       <nav>
         <h6 class="footer-title">更多...</h6>
@@ -82,8 +82,6 @@ onMounted(async () => {
   console.log(res.data);
   if (res.status === 200) {
     userStore.addAnnouncements(res.data as Announcement[]);
-    console.log(userStore.announcementList);
-    console.log("苏健尧的日志");
     isLoaded.value = true;
   }
 });
