@@ -1,0 +1,67 @@
+default:
+    image: node:latest
+stages:
+    - build
+    - deploy
+
+cache:
+    paths:
+        - ./node_modules/
+
+sends-home-frontend-build:
+    stage: build
+    script:
+        - cd front_end
+        - npm config set registry https://registry.npmmirror.com
+        - npm install -g pnpm
+        - pnpm install
+        - pnpm run build
+        - sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources
+    only:
+        refs:
+            - master
+        changes:
+            - front_end/**/*
+    artifacts:
+        expire_in: 60min
+        paths:
+            - ./front_end/dist/
+
+sends-home-frontend-deploy:
+    stage: deploy
+    image: node:latest
+    before_script:
+        - sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources
+        - apt update && apt install -y openssh-client rsync openssl
+        - eval $(ssh-agent -s)
+        - mkdir -p ~/.ssh
+        - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\nPubkeyAcceptedKeyTypes +ssh-rsa\nHostKeyAlgorithms=+ssh-rsa\n\n" > ~/.ssh/config'
+        - echo "$SSH_PRIVATE_KEY" | ssh-add -
+        - ssh-keyscan -p 4242 ${SENDS_SERVER} >> ~/.ssh/known_hosts
+    script:
+        - rsync -e 'ssh -p 4242' -atv --delete --progress ./front_end/dist  ubuntu@${SENDS_SERVER}:/home/ubuntu/tmp/sends_home
+        - ssh -p 4242 ubuntu@${SENDS_SERVER} bash /home/ubuntu/sends_home/frontend/run.sh;
+    only:
+        refs:
+            - master
+        changes:
+            - front_end/**/*
+
+sends-home-backend-deploy:
+    stage: deploy
+    image: alpine:latest
+    before_script:
+        - sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+        - apk update && apk add openssh-client rsync
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | ssh-add -
+        - mkdir -p ~/.ssh
+        - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+        - ssh-keyscan -p 4242 pangu.sends.cc >> ~/.ssh/known_hosts
+    script:
+        - ssh -p 4242 ubuntu@pangu.sends.cc bash /home/ubuntu/sends_home/backend/run.sh
+    only:
+        refs:
+            - master
+        changes:
+            - back_end/**/*
