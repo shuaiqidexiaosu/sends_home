@@ -5,6 +5,7 @@ import com.sjy.entity.Announcement;
 import com.sjy.entity.User;
 import com.sjy.res.ResData;
 import com.sjy.service.AnnouncementService;
+import com.sjy.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController()
+@CrossOrigin
 @RequestMapping("/announcement")
 public class AnnouncementController {
 
@@ -20,30 +22,45 @@ public class AnnouncementController {
     @Autowired
     private AnnouncementService announcementService;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     //    根据年份获取公告信息
     @GetMapping("/getAnnouncementByYear/{year}")
     public ResData<List<Announcement>> getAnnouncementByYear(@PathVariable Integer year) {
-        QueryWrapper<Announcement> wrapper = new QueryWrapper<>();
-        wrapper.eq("year", year);
-        List<Announcement> list = announcementService.list(wrapper);
-        if (list.isEmpty()) {
-            return ResData.failure("暂无公告信息");
+        String data_key = "AnnouncementByYear" + year;
+        if (redisUtil.hasKey(data_key)) {
+            return (ResData<List<Announcement>>) redisUtil.get(data_key);
         } else {
-            return ResData.success(list, "获取当年公告信息成功");
+            QueryWrapper<Announcement> wrapper = new QueryWrapper<>();
+            wrapper.eq("year", year);
+            List<Announcement> list = announcementService.list(wrapper);
+            if (list.isEmpty()) {
+                return ResData.failure("暂无公告信息");
+            } else {
+                return ResData.success(list, "获取当年公告信息成功");
+            }
         }
+
     }
 
     //    获取当年公告信息
     @GetMapping("/getDefaultAnnouncement")
     public ResData<List<Announcement>> getDefaultAnnouncement() {
-        QueryWrapper<Announcement> wrapper = new QueryWrapper<>();
-        wrapper.eq("year", new Date().getYear() + 1900);
-        List<Announcement> list = announcementService.list(wrapper);
-        if (list.isEmpty()) {
-            return ResData.failure("暂无公告信息");
+        String data_key = "AnnouncementByYear";
+        if (redisUtil.hasKey(data_key)) {
+            return (ResData<List<Announcement>>) redisUtil.get(data_key);
         } else {
-            return ResData.success(list, "获取当年公告信息成功");
+            QueryWrapper<Announcement> wrapper = new QueryWrapper<>();
+            wrapper.eq("year", new Date().getYear() + 1900);
+            List<Announcement> list = announcementService.list(wrapper);
+            if (list.isEmpty()) {
+                return ResData.failure("暂无公告信息");
+            } else {
+                return ResData.success(list, "获取当年公告信息成功");
+            }
         }
+
     }
 
     //    添加公告

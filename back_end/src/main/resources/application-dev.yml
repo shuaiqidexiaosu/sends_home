@@ -20,6 +20,9 @@ spring:
       port: 6379
       timeout: 4000ms
       database: 0
+      lettuce:
+        pool:
+          max-active: 8
 
 mybatis-plus:
   global-config:
@@ -27,7 +30,7 @@ mybatis-plus:
 
 logging:
   level:
-    root: warn
+    root: info
 
 server:
   port: 8081

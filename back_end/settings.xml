@@ -1,0 +1,25 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <mirrors>
+    <mirror>
+      <id>alimaven</id>
+      <mirrorOf>central</mirrorOf>
+      <name>aliyun maven</name>
+      <url>https://maven.aliyun.com/repository/public</url>
+    </mirror>
+    <mirror>
+      <id>tencent</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Tencent Cloud Maven</name>
+      <url>https://mirrors.cloud.tencent.com/nexus/repository/maven-public/</url>
+    </mirror>
+    <mirror>
+      <id>huaweicloud</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Huawei Cloud Maven</name>
+      <url>https://repo.huaweicloud.com/repository/maven/</url>
+    </mirror>
+  </mirrors>
+</settings>

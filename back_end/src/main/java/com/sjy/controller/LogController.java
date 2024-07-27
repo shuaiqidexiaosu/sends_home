@@ -7,6 +7,7 @@ import com.sjy.entity.User;
 import com.sjy.res.ResData;
 import com.sjy.service.AnnouncementService;
 import com.sjy.service.LogService;
+import com.sjy.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/log")
 public class LogController {
 
@@ -22,16 +24,24 @@ public class LogController {
     @Autowired
     private LogService logService;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     //
     @GetMapping("/getLogs")
     public ResData<List<Log>> getLogs() {
-        QueryWrapper<Log> wrapper = new QueryWrapper<>();
-        wrapper.select("id", "content", "time","year");
-        List<Log> list = logService.list(wrapper);
-        if (list.isEmpty()) {
-            return ResData.failure("暂无公告信息");
+        String data_key = "Logs";
+        if (redisUtil.hasKey(data_key)) {
+            return (ResData<List<Log>>) redisUtil.get(data_key);
         } else {
-            return ResData.success(list, "获取当年公告信息成功");
+            QueryWrapper<Log> wrapper = new QueryWrapper<>();
+            wrapper.select("id", "content", "time", "year");
+            List<Log> list = logService.list(wrapper);
+            if (list.isEmpty()) {
+                return ResData.failure("暂无公告信息");
+            } else {
+                return ResData.success(list, "获取当年公告信息成功");
+            }
         }
     }
 

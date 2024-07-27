@@ -27,7 +27,7 @@ mybatis-plus:
 
 logging:
   level:
-    root: warn
+    root: info
 
 server:
-  port: 8081
+  port: 8082

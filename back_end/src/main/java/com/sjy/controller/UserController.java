@@ -5,7 +5,9 @@ import com.sjy.entity.User;
 import com.sjy.res.ResData;
 import com.sjy.service.UserService;
 import com.sjy.utils.JwtTokenUtil;
+import com.sjy.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
@@ -14,11 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/user")
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     // 登陆接口
     @PostMapping("/login")
@@ -28,6 +34,7 @@ public class UserController {
         wrapper.eq("user_id", user.getUserId());
         wrapper.eq("password", user.getPassword());
         User res = userService.getOne(wrapper);
+        System.out.println("res:" + res);
         if (res != null) {
             String token = JwtTokenUtil.createToken(user);
             return ResData.success(res, token, "登陆成功");
@@ -79,14 +86,19 @@ public class UserController {
     //    获取自己数据接口
     @GetMapping("/getMyData/{id}")
     public ResData<User> getMyData(@PathVariable("id") Integer id) {
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("id", id);
-        User user = userService.getOne(wrapper);
-        System.out.println(user);
-        if (user != null) {
-            return ResData.success(user, "获取个人中心数据成功");
+        String data_key = "user_data_" + id;
+        if (redisUtil.hasKey(data_key)) {
+            return (ResData<User>) redisUtil.get(data_key);
         } else {
-            return ResData.failure("获取个人中心数据失败，用户不存在");
+            QueryWrapper<User> wrapper = new QueryWrapper<>();
+            wrapper.eq("id", id);
+            User user = userService.getOne(wrapper);
+            System.out.println(user);
+            if (user != null) {
+                return ResData.success(user, "获取个人中心数据成功");
+            } else {
+                return ResData.failure("获取个人中心数据失败，用户不存在");
+            }
         }
     }
 
@@ -94,60 +106,82 @@ public class UserController {
     // 获取桑梓成员数据接口
     @GetMapping("/getDefaultUserData")
     public ResData<List<User>> getDefaultUserData() {
-        Date date = new Date(); // this object contains the current date value
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-        int current_year = Integer.parseInt(formatter.format(date));
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.between("session", current_year - 4, current_year).or().eq("position","老师");
-        List<User> list = userService.list(wrapper);
-        if (list != null) {
-            return ResData.success(list, "获取桑梓成员数据成功");
+        String data_key = "DefaultUserData";
+        if (redisUtil.hasKey(data_key)) {
+            return (ResData<List<User>>) redisUtil.get(data_key);
         } else {
-            return ResData.failure("获取桑梓成员数据失败");
+            Date date = new Date(); // this object contains the current date value
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+            int current_year = Integer.parseInt(formatter.format(date));
+            QueryWrapper<User> wrapper = new QueryWrapper<>();
+            wrapper.between("session", current_year - 4, current_year).or().eq("position", "老师");
+            List<User> list = userService.list(wrapper);
+            if (list != null) {
+                return ResData.success(list, "获取桑梓成员数据成功");
+            } else {
+                return ResData.failure("获取桑梓成员数据失败");
+            }
         }
     }
 
 
     @GetMapping("/getUserDataByYear/{year}")
     public ResData<List<User>> getUserDataByYear(@PathVariable("year") Integer year) {
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("session", year);
-        List<User> list = userService.list(wrapper);
-        if (list != null) {
-            return ResData.success(list, "获取用户数据成功");
+        String data_key = "UserDataByYear_" + year;
+        if (redisUtil.hasKey(data_key)) {
+            return (ResData<List<User>>) redisUtil.get(data_key);
         } else {
-            return ResData.failure("获取用户数据失败，用户不存在");
+            QueryWrapper<User> wrapper = new QueryWrapper<>();
+            wrapper.eq("session", year);
+            List<User> list = userService.list(wrapper);
+            if (list != null) {
+                return ResData.success(list, "获取用户数据成功");
+            } else {
+                return ResData.failure("获取用户数据失败，用户不存在");
+            }
         }
+
     }
 
 
     //    获取特定部门桑梓成员数据接口
     @GetMapping("/getDepartmentUserData/{department}")
     public ResData<List<User>> getDepartmentUserData(@PathVariable("department") String department) {
-        Date date = new Date(); // this object contains the current date value
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-        int current_year = Integer.parseInt(formatter.format(date));
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.between("session", current_year - 4, current_year);
-        wrapper.eq("department", department);
-        List<User> list = userService.list(wrapper);
-        if (list != null) {
-            return ResData.success(list, "获取特定部门桑梓成员数据成功");
+        String data_key = "DepartmentUserData" + department;
+        if (redisUtil.hasKey(data_key)) {
+            return (ResData<List<User>>) redisUtil.get(data_key);
         } else {
-            return ResData.failure("获取特定部门桑梓成员数据失败，用户不存在");
+            Date date = new Date(); // this object contains the current date value
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+            int current_year = Integer.parseInt(formatter.format(date));
+            QueryWrapper<User> wrapper = new QueryWrapper<>();
+            wrapper.between("session", current_year - 4, current_year);
+            wrapper.eq("department", department);
+            List<User> list = userService.list(wrapper);
+            if (list != null) {
+                return ResData.success(list, "获取特定部门桑梓成员数据成功");
+            } else {
+                return ResData.failure("获取特定部门桑梓成员数据失败，用户不存在");
+            }
         }
+
     }
 
     @GetMapping("/getDepartmentUserDataByYear/{department}/{year}")
     public ResData<List<User>> getDepartmentUserDataByYear(@PathVariable("department") String department, @PathVariable("year") Integer year) {
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("session", year);
-        wrapper.eq("department", department);
-        List<User> list = userService.list(wrapper);
-        if (list != null) {
-            return ResData.success(list, "获取用户数据成功");
+        String data_key = "DepartmentUserDataByYear_" + department + "_" + year;
+        if (redisUtil.hasKey(data_key)) {
+            return (ResData<List<User>>) redisUtil.get(data_key);
         } else {
-            return ResData.failure("获取用户数据失败，用户不存在");
+            QueryWrapper<User> wrapper = new QueryWrapper<>();
+            wrapper.eq("session", year);
+            wrapper.eq("department", department);
+            List<User> list = userService.list(wrapper);
+            if (list != null) {
+                return ResData.success(list, "获取用户数据成功");
+            } else {
+                return ResData.failure("获取用户数据失败，用户不存在");
+            }
         }
     }
 }
