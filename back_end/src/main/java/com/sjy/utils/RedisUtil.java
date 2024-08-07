@@ -4,11 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-/**
- * @Author fangming
- * @Date:2018/7/27
- * @Description:
- */
+
 @Component
 public class RedisUtil {
 
