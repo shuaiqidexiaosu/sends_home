@@ -2,7 +2,6 @@ package com.sjy.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sjy.entity.Announcement;
-import com.sjy.entity.User;
 import com.sjy.res.ResData;
 import com.sjy.service.AnnouncementService;
 import com.sjy.utils.RedisUtil;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @RestController()
 @CrossOrigin
